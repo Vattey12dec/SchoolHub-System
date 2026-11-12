@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Course{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-{% if action == 'Create' %}plus-circle{% else %}pencil{% endif %}"></i> {{ action }} Course</h2>
+    <a href="{% url 'academics:course_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Please correct the following errors:</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <h5 class="mb-3">Basic Information</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Course Code *</label>
+                            {{ form.code }}
+                            <small class="form-text text-muted">e.g., CS101, MATH201</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Credits *</label>
+                            {{ form.credits }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Course Name *</label>
+                        {{ form.name }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description *</label>
+                        {{ form.description }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Department *</label>
+                        {{ form.department }}
+                        <small class="form-text text-muted">Select the department this course belongs to</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Instructor *</label>
+                        {{ form.instructor }}
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h5 class="mb-3">Schedule & Capacity</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Semester *</label>
+                            {{ form.semester }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Year *</label>
+                            {{ form.year }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Capacity *</label>
+                            {{ form.capacity }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="id_is_active">
+                                Course is active and available for enrollment
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Note:</strong> After creating this course, you can assign it to specific majors from the major detail page.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-save"></i> {{ action }} Course
+                        </button>
+                        <a href="{% url 'academics:course_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Guidelines</h5>
+                <ul class="small">
+                    <li>Course code should be unique across all departments</li>
+                    <li>Credits typically range from 1-6</li>
+                    <li>Provide a clear and detailed course description</li>
+                    <li>Select an active teacher as instructor</li>
+                    <li>Set realistic capacity based on classroom size</li>
+                    <li><strong>After creating:</strong> Go to the major page to assign this course to one or more majors</li>
+                </ul>
+            </div>
+        </div>
+
+        {% if action == 'Create' %}
+        <div class="card mt-3 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">Two-Step Process</h6>
+            </div>
+            <div class="card-body">
+                <ol class="small mb-0">
+                    <li><strong>Create Course</strong> - Fill out this form</li>
+                    <li><strong>Assign to Majors</strong> - Visit major pages and use "Add Course" button</li>
+                </ol>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

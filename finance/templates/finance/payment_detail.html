@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Payment Details{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Payment Details</h2>
+    <div>
+        {% if payment.status == 'completed' and receipt %}
+        <a href="{% url 'finance:payment_receipt' payment.id %}" class="btn btn-success">
+            View Receipt
+        </a>
+        {% endif %}
+        <a href="{% url 'finance:payment_list' %}" class="btn btn-secondary">
+            Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">Payment Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="200">Payment ID:</th>
+                        <td>{{ payment.payment_id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Student:</th>
+                        <td>{{ payment.student.get_full_name }} ({{ payment.student.username }})</td>
+                    </tr>
+                    <tr>
+                        <th>Description:</th>
+                        <td>{{ payment.description }}</td>
+                    </tr>
+                    <tr>
+                        <th>Amount:</th>
+                        <td><h4 class="text-success mb-0">${{ payment.amount }}</h4></td>
+                    </tr>
+                    <tr>
+                        <th>Payment Method:</th>
+                        <td>{{ payment.get_payment_method_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Transaction ID:</th>
+                        <td>{{ payment.transaction_id|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            {% if payment.status == 'completed' %}
+                                <span class="badge bg-success fs-6">Completed</span>
+                            {% elif payment.status == 'approved' %}
+                                <span class="badge bg-success fs-6">Approved</span>
+                            {% elif payment.status == 'pending' %}
+                                <span class="badge bg-warning fs-6">Pending</span>
+                            {% elif payment.status == 'awaiting_approval' %}
+                                <span class="badge bg-info fs-6">Awaiting Approval</span>
+                            {% elif payment.status == 'rejected' %}
+                                <span class="badge bg-danger fs-6">Rejected</span>
+                            {% else %}
+                                <span class="badge bg-secondary fs-6">{{ payment.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Created Date:</th>
+                        <td>{{ payment.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Due Date:</th>
+                        <td>{{ payment.due_date|date:"M d, Y" }}</td>
+                    </tr>
+                    {% if payment.payment_date %}
+                    <tr>
+                        <th>Payment Date:</th>
+                        <td>{{ payment.payment_date|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if payment.processed_by %}
+                    <tr>
+                        <th>Processed By:</th>
+                        <td>{{ payment.processed_by.get_full_name }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if payment.notes %}
+                    <tr>
+                        <th>Notes:</th>
+                        <td>{{ payment.notes }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+        
+        {% if payment.fee_structure %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Fee Structure</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Name:</strong> {{ payment.fee_structure.name }}</p>
+                <p><strong>Type:</strong> {{ payment.fee_structure.get_fee_type_display }}</p>
+                <p class="mb-0"><strong>Amount:</strong> ${{ payment.fee_structure.amount }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if payment.status == 'completed' and receipt %}
+                    <a href="{% url 'finance:payment_receipt' payment.id %}" class="btn btn-success">
+                        View Receipt
+                    </a>
+                    {% endif %}
+                    
+                    {% if payment.status == 'pending' %}
+                    <a href="{% url 'finance:make_payment' payment.id %}" class="btn btn-primary">
+                        Process Payment
+                    </a>
+                    {% endif %}
+                    
+                    <!---->
+                    {% if payment.status == 'awaiting_approval' and request.user.is_admin %}
+                    <div class="d-flex gap-2 mt-3">
+                        <form method="post" action="{% url 'finance:approve_payment' payment.id %}" class="flex-fill">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100">
+                                Approve Payment
+                            </button>
+                     <!---->
+                        </form>
+                        <form method="post" action="{% url 'finance:reject_payment' payment.id %}" class="flex-fill">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger w-100">
+                                Reject Payment
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                    
+                    {% if payment.status == 'approved' and not receipt %}
+                    <form method="post" action="{% url 'finance:approve_payment' payment.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success w-100">
+                            Complete Payment
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

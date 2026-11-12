@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Pending Approvals - SchoolHub MIS{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-hourglass-split"></i> Pending User Approvals</h2>
+        <p class="text-muted">Review and approve new user registrations</p>
+    </div>
+</div>
+
+{% if pending_users %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>User</th>
+                        <th>Type</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Registration Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in pending_users %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}" 
+                                     class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <strong>{{ user.get_full_name }}</strong>
+                                    <br><small class="text-muted">@{{ user.username }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if user.is_student %}bg-primary
+                                {% elif user.is_teacher %}bg-success
+                                {% else %}bg-warning{% endif %}">
+                                {{ user.get_user_type_display }}
+                            </span>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.phone_number|default:"-" }}</td>
+                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'accounts:user_detail' user.id %}" 
+                                   class="btn btn-sm btn-outline-info" 
+                                   title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <form method="POST" action="{% url 'accounts:approve_user' user.id %}" 
+                                      class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            class="btn btn-sm btn-success" 
+                                            title="Approve User"
+                                            onclick="return confirm('Approve {{ user.username }}?')">
+                                        <i class="bi bi-check-circle"></i> Approve
+                                    </button>
+                                </form>
+                                <a href="{% url 'accounts:delete_user' user.id %}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   title="Reject">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+        <h4 class="mt-3">All Caught Up!</h4>
+        <p class="text-muted">There are no pending user approvals at this time.</p>
+        <a href="{% url 'accounts:user_list' %}" class="btn btn-primary">
+            <i class="bi bi-people"></i> View All Users
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

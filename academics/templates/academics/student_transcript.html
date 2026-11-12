@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header d-print-none">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-file-alt"></i> Academic Transcript</h1>
+            <p class="text-muted">Official academic record</p>
+        </div>
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fas fa-print"></i> Print Transcript
+        </button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-5">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h2 class="text-primary"><i class="fas fa-graduation-cap"></i> SchoolHub MIS</h2>
+            <h4>OFFICIAL TRANSCRIPT</h4>
+            <hr>
+        </div>
+
+        <!-- Student Information -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h5>Student Information</h5>
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td><strong>Name:</strong></td>
+                        <td>{{ student.user.get_full_name }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Student ID:</strong></td>
+                        <td>{{ student.student_id }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Department:</strong></td>
+                        <td>{{ student.department.get_name_display }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Major:</strong></td>
+                        <td>{{ student.major.name }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h5>Academic Summary</h5>
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td><strong>Current Semester:</strong></td>
+                        <td>{{ student.current_semester }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Credits:</strong></td>
+                        <td>{{ total_credits }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Earned Credits:</strong></td>
+                        <td>{{ earned_credits }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cumulative GPA:</strong></td>
+                        <td><strong class="text-primary">{{ gpa|floatformat:2 }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Course Grades by Semester -->
+        {% for semester_num, semester_courses in semesters.items %}
+        <div class="mb-4">
+            <h5 class="bg-light p-2">Semester {{ semester_num }}</h5>
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Name</th>
+                        <th>Credits</th>
+                        <th>Grade</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enrollment in semester_courses %}
+                    <tr>
+                        <td>{{ enrollment.course.course_code }}</td>
+                        <td>{{ enrollment.course.course_name }}</td>
+                        <td>{{ enrollment.course.credits }}</td>
+                        <td>
+                            {% if enrollment.grade and enrollment.grade.letter_grade %}
+                                <strong>{{ enrollment.grade.letter_grade }}</strong>
+                                ({{ enrollment.grade.total_score|floatformat:1 }}%)
+                            {% else %}
+                                <span class="text-muted">In Progress</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if enrollment.grade and enrollment.grade.total_score %}
+                                {% if enrollment.grade.total_score >= 60 %}
+                                    <span class="badge bg-success">Pass</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Fail</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-info">Active</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No courses completed yet.
+        </div>
+        {% endfor %}
+
+        <!-- Footer -->
+        <div class="text-center mt-5 pt-4 border-top">
+            <p class="text-muted">
+                <small>
+                    This is an official transcript issued by SchoolHub MIS.<br>
+                    Generated on: {{ now|date:"F d, Y - h:i A" }}<br>
+                    For verification purposes only.
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .d-print-none {
+            display: none !important;
+        }
+        .card {
+            border: none;
+            box-shadow: none;
+        }
+    }
+</style>
+{% endblock %}

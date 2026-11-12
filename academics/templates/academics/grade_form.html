@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}Grade Student{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-pencil-square"></i> Grade Student</h2>
+        <a href="{% url 'academics:course_detail' enrollment.course.id %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Course
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Student & Course Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Student:</strong> {{ enrollment.student.get_full_name }}</p>
+                            <p><strong>Student ID:</strong> {{ enrollment.student.student_id }}</p>
+                            <p><strong>Email:</strong> {{ enrollment.student.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Course:</strong> {{ enrollment.course.code }} - {{ enrollment.course.name }}</p>
+                            <p><strong>Credits:</strong> {{ enrollment.course.credits }}</p>
+                            <p><strong>Enrolled:</strong> {{ enrollment.enrollment_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Enter Grades</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="gradeForm">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Midterm Score (0-100)</label>
+                                {{ form.midterm_score }}
+                                <small class="text-muted">Weight: 30%</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Final Score (0-100)</label>
+                                {{ form.final_score }}
+                                <small class="text-muted">Weight: 40%</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Assignment Score (0-100)</label>
+                                {{ form.assignment_score }}
+                                <small class="text-muted">Weight: 30%</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Calculated Grade (0-100) *</label>
+                                <input type="number" step="0.01" class="form-control" 
+                                       id="calculatedGrade" readonly 
+                                       style="background-color: #e9ecef; font-weight: bold; font-size: 1.2rem;">
+                                {{ form.numeric_grade }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Letter Grade</label>
+                                <input type="text" class="form-control" 
+                                       id="letterGradeDisplay" readonly 
+                                       style="background-color: #e9ecef; font-weight: bold; font-size: 1.2rem;">
+                                <small class="text-muted">Will be auto-calculated based on numeric grade</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Comments</label>
+                            {{ form.comments }}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-save"></i> Save Grade
+                            </button>
+                            <a href="{% url 'academics:course_detail' enrollment.course.id %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Grading Scale</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr><td>A+</td><td>97-100</td></tr>
+                        <tr><td>A</td><td>93-96</td></tr>
+                        <tr><td>A-</td><td>90-92</td></tr>
+                        <tr><td>B+</td><td>87-89</td></tr>
+                        <tr><td>B</td><td>83-86</td></tr>
+                        <tr><td>B-</td><td>80-82</td></tr>
+                        <tr><td>C+</td><td>77-79</td></tr>
+                        <tr><td>C</td><td>73-76</td></tr>
+                        <tr><td>C-</td><td>70-72</td></tr>
+                        <tr><td>D+</td><td>67-69</td></tr>
+                        <tr><td>D</td><td>63-66</td></tr>
+                        <tr><td>D-</td><td>60-62</td></tr>
+                        <tr><td>F</td><td>&lt;60</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-calculate grade when scores change
+document.addEventListener('DOMContentLoaded', function() {
+    const midtermInput = document.getElementById('id_midterm_score');
+    const finalInput = document.getElementById('id_final_score');
+    const assignmentInput = document.getElementById('id_assignment_score');
+    const numericGradeInput = document.getElementById('id_numeric_grade');
+    const calculatedGradeDisplay = document.getElementById('calculatedGrade');
+    const letterGradeDisplay = document.getElementById('letterGradeDisplay');
+
+    function calculateLetterGrade(score) {
+        if (score >= 97) return 'A+';
+        if (score >= 93) return 'A';
+        if (score >= 90) return 'A-';
+        if (score >= 87) return 'B+';
+        if (score >= 83) return 'B';
+        if (score >= 80) return 'B-';
+        if (score >= 77) return 'C+';
+        if (score >= 73) return 'C';
+        if (score >= 70) return 'C-';
+        if (score >= 67) return 'D+';
+        if (score >= 63) return 'D';
+        if (score >= 60) return 'D-';
+        return 'F';
+    }
+
+    function calculateGrade() {
+        const midterm = parseFloat(midtermInput.value) || 0;
+        const final = parseFloat(finalInput.value) || 0;
+        const assignment = parseFloat(assignmentInput.value) || 0;
+
+        // Calculate weighted average
+        // Midterm: 30%, Final: 40%, Assignment: 30%
+        const calculatedGrade = (midterm * 0.30) + (final * 0.40) + (assignment * 0.30);
+        const roundedGrade = Math.round(calculatedGrade * 100) / 100;
+
+        // Update displays
+        calculatedGradeDisplay.value = roundedGrade.toFixed(2);
+        numericGradeInput.value = roundedGrade.toFixed(2);
+        
+        // Calculate and display letter grade
+        const letterGrade = calculateLetterGrade(roundedGrade);
+        letterGradeDisplay.value = letterGrade;
+    }
+
+    // Add event listeners
+    midtermInput.addEventListener('input', calculateGrade);
+    finalInput.addEventListener('input', calculateGrade);
+    assignmentInput.addEventListener('input', calculateGrade);
+
+    // Calculate on page load if values exist
+    calculateGrade();
+});
+</script>
+
+<style>
+#id_numeric_grade {
+    display: none;
+}
+</style>
+{% endblock %}

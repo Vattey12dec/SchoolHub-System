@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Pending Payment Approvals{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Pending Payment Approvals</h2>
+    <a href="{% url 'finance:payment_list' %}" class="btn btn-secondary">
+        Back to Payments
+    </a>
+</div>
+
+{% if pending_payments %}
+<div class="card">
+    <div class="card-header bg-warning text-white">
+        <h5 class="mb-0">Awaiting Approval ({{ total_pending }})</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Student</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Payment Method</th>
+                        <th>Submitted On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in pending_payments %}
+                    <tr>
+                        <td>{{ payment.payment_id|truncatechars:10 }}</td>
+                        <td>{{ payment.student.get_full_name }}</td>
+                        <td class="text-success fw-bold">${{ payment.amount }}</td>
+                        <td>{{ payment.description|truncatechars:30 }}</td>
+                        <td>{{ payment.get_payment_method_display }}</td>
+                        <td>{{ payment.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'finance:payment_detail' payment.id %}" 
+                                   class="btn btn-outline-primary">
+                                    View
+                                </a>
+                                <!--  -->
+                                <form method="post" action="{% url 'finance:approve_payment' payment.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-success">
+                                        Approve
+                                    </button>
+                                    
+                                </form>
+                                <form method="post" action="{% url 'finance:reject_payment' payment.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        Reject
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">
+    No payments awaiting approval.
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}{{ major.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-mortarboard"></i> {{ major.name }}</h2>
+            <p class="text-muted">{{ major.department.name }}</p>
+        </div>
+        <div>
+            <a href="{% url 'academics:major_update' major.id %}" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a href="{% url 'academics:major_delete' major.id %}" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Delete
+            </a>
+            <a href="{% url 'academics:department_detail' major.department.id %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Major Information -->
+        <div class="col-md-8">
+            <!-- Major Info Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Major Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Code:</strong> {{ major.code }}</p>
+                            <p><strong>Department:</strong> <a href="{% url 'academics:department_detail' major.department.id %}">{{ major.department.name }}</a></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Required Credits:</strong> {{ major.required_credits }}</p>
+                            <p><strong>Status:</strong> 
+                                {% if major.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% if major.description %}
+                    <hr>
+                    <p><strong>Description:</strong></p>
+                    <p>{{ major.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Courses Section -->
+            <div class="card">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Courses ({{ courses.count }})</h5>
+                    <a href="{% url 'academics:add_course_to_major' major.id %}" class="btn btn-light btn-sm">
+                        <i class="bi bi-plus-circle"></i> Add Course
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if courses %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>Instructor</th>
+                                    <th>Semester</th>
+                                    <th>Credits</th>
+                                    <th>Enrollment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in courses %}
+                                <tr>
+                                    <td><strong>{{ course.code }}</strong></td>
+                                    <td>{{ course.name }}</td>
+                                    <td>{{ course.instructor.get_full_name|default:"Not assigned" }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if course.semester == 'spring' %}bg-primary
+                                            {% elif course.semester == 'fall' %}bg-warning
+                                            {% else %}bg-info{% endif %}">
+                                            {{ course.get_semester_display }} {{ course.year }}
+                                        </span>
+                                    </td>
+                                    <td>{{ course.credits }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            {{ course.enrolled_count }}/{{ course.capacity }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'academics:course_detail' course.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                        <form method="post" action="{% url 'academics:remove_course_from_major' major.id course.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="return confirm('Remove this course from {{ major.name }}?')">
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-book text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-3">No courses in this major yet.</p>
+                        <a href="{% url 'academics:add_course_to_major' major.id %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add Courses
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Quick Stats & Students -->
+        <div class="col-md-4">
+            <!-- Quick Stats -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted">Total Courses:</label>
+                        <h4>{{ courses.count }}</h4>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted">Enrolled Students:</label>
+                        <h4>{{ students.count }}</h4>
+                    </div>
+                    <div>
+                        <label class="text-muted">Required Credits:</label>
+                        <h4>{{ major.required_credits }}</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Students -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Students</h5>
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                    <ul class="list-group list-group-flush">
+                        {% for student in students|slice:":5" %}
+                        <li class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-primary text-white rounded-circle me-2" 
+                                     style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                                    {{ student.first_name.0|upper }}{{ student.last_name.0|upper }}
+                                </div>
+                                <div>
+                                    <div>{{ student.get_full_name }}</div>
+                                    <small class="text-muted">{{ student.student_id }}</small>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted text-center">No students enrolled yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

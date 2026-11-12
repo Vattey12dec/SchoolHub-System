@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Make Payment{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-credit-card"></i> Make Payment</h2>
+    <a href="{% url 'finance:student_payments' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Payment Details</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="200">Description:</th>
+                        <td>{{ payment.description }}</td>
+                    </tr>
+                    <tr>
+                        <th>Amount:</th>
+                        <td><h4 class="text-success mb-0">${{ payment.amount }}</h4></td>
+                    </tr>
+                    <tr>
+                        <th>Due Date:</th>
+                        <td>{{ payment.due_date|date:"M d, Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            {% if payment.status == 'pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                            {% else %}
+                            <span class="badge bg-success">{{ payment.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if payment.fee_structure %}
+                    <tr>
+                        <th>Fee Type:</th>
+                        <td>{{ payment.fee_structure.get_fee_type_display }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Payment Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method *</label>
+                        {{ form.payment_method }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Transaction ID (Optional)</label>
+                        {{ form.transaction_id }}
+                        <small class="form-text text-muted">Enter transaction ID if paying via bank transfer or online</small>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> By submitting this form, you confirm that you have made the payment of <strong>${{ payment.amount }}</strong>.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle"></i> Confirm Payment
+                        </button>
+                        <a href="{% url 'finance:student_payments' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-header">
+                <h5 class="mb-0">Payment Methods</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6><i class="bi bi-cash"></i> Cash</h6>
+                    <p class="small text-muted">Pay at the finance office</p>
+                </div>
+                <div class="mb-3">
+                    <h6><i class="bi bi-bank"></i> Bank Transfer</h6>
+                    <p class="small text-muted">Transfer to school account</p>
+                </div>
+                <div class="mb-3">
+                    <h6><i class="bi bi-credit-card"></i> Credit Card</h6>
+                    <p class="small text-muted">Pay online with card</p>
+                </div>
+                <div>
+                    <h6><i class="bi bi-globe"></i> Online Payment</h6>
+                    <p class="small text-muted">Use online payment gateway</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

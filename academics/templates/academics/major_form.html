@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Major{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-{% if action == 'Create' %}plus-circle{% else %}pencil{% endif %}"></i> {{ action }} Major</h2>
+    <a href="{% if department %}{% url 'academics:department_detail' department.id %}{% else %}{% url 'academics:department_list' %}{% endif %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Major Name *</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Code *</label>
+                            {{ form.code }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Department *</label>
+                        {{ form.department }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Required Credits</label>
+                        {{ form.required_credits }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="id_is_active">
+                                Major is active
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-save"></i> {{ action }} Major
+                        </button>
+                        <a href="{% if department %}{% url 'academics:department_detail' department.id %}{% else %}{% url 'academics:department_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Guidelines</h5>
+                <ul class="small">
+                    <li>Major name should be specific (e.g., Software Engineering)</li>
+                    <li>Code should be 2-10 characters (e.g., SWE, DS)</li>
+                    <li>Select appropriate department</li>
+                    <li>Typical required credits: 120-130</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

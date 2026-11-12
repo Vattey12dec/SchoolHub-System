@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% block title %}Create User - SchoolHub MIS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .field-group {
+        display: none;
+    }
+    .field-group.active {
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-person-plus"></i> Create New User</h2>
+        <p class="text-muted">Add a new user to the system</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">User Information</div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="userForm">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Username *</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">User Type *</label>
+                            {{ form.user_type }}
+                            {% if form.user_type.errors %}
+                                <div class="text-danger small">{{ form.user_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name *</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small">{{ form.first_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name *</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small">{{ form.last_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger small">{{ form.phone_number.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Date of Birth</label>
+                        {{ form.date_of_birth }}
+                        {% if form.date_of_birth.errors %}
+                            <div class="text-danger small">{{ form.date_of_birth.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                            <div class="text-danger small">{{ form.address.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Profile Picture</label>
+                        {{ form.profile_picture }}
+                        {% if form.profile_picture.errors %}
+                            <div class="text-danger small">{{ form.profile_picture.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Student-specific fields -->
+                    <div id="student-fields" class="field-group">
+                        <hr>
+                        <h5 class="mb-3"><i class="bi bi-mortarboard"></i> Student Information</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Student ID</label>
+                            {{ form.student_id }}
+                            <small class="text-muted">Leave empty for auto-generation</small>
+                            {% if form.student_id.errors %}
+                                <div class="text-danger small">{{ form.student_id.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Department *</label>
+                            {{ form.department }}
+                            {% if form.department.errors %}
+                                <div class="text-danger small">{{ form.department.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Major *</label>
+                            {{ form.major }}
+                            {% if form.major.errors %}
+                                <div class="text-danger small">{{ form.major.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Enrollment Date</label>
+                            {{ form.enrollment_date }}
+                            {% if form.enrollment_date.errors %}
+                                <div class="text-danger small">{{ form.enrollment_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Teacher-specific fields -->
+                    <div id="teacher-fields" class="field-group">
+                        <hr>
+                        <h5 class="mb-3"><i class="bi bi-person-badge"></i> Teacher Information</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Teacher ID</label>
+                            {{ form.teacher_id }}
+                            <small class="text-muted">Leave empty for auto-generation</small>
+                            {% if form.teacher_id.errors %}
+                                <div class="text-danger small">{{ form.teacher_id.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Department *</label>
+                            {{ form.teacher_department }}
+                            {% if form.teacher_department.errors %}
+                                <div class="text-danger small">{{ form.teacher_department.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Teaching Majors</label>
+                            {{ form.teaching_majors }}
+                            <small class="text-muted d-block">Select majors this teacher can teach</small>
+                            {% if form.teaching_majors.errors %}
+                                <div class="text-danger small">{{ form.teaching_majors.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Hire Date</label>
+                            {{ form.hire_date }}
+                            {% if form.hire_date.errors %}
+                                <div class="text-danger small">{{ form.hire_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Password fields -->
+                    <hr>
+                    <h5 class="mb-3"><i class="bi bi-lock"></i> Security</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Password *</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <div class="text-danger small">{{ form.password1.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm Password *</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <div class="text-danger small">{{ form.password2.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Create User
+                        </button>
+                        <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-info-circle"></i> Information</div>
+            <div class="card-body">
+                <h6>User Type Selection:</h6>
+                <ul class="small">
+                    <li><strong>Student:</strong> Requires department and major</li>
+                    <li><strong>Teacher:</strong> Requires department and teaching majors</li>
+                    <li><strong>Admin:</strong> No additional fields required</li>
+                </ul>
+                
+                <hr>
+                
+                <h6>Auto-Generated IDs:</h6>
+                <p class="small text-muted">Student ID and Teacher ID will be automatically generated if left empty. Format: STU{YEAR}{RANDOM} or TCH{YEAR}{RANDOM}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userTypeSelect = document.getElementById('id_user_type');
+    const studentFields = document.getElementById('student-fields');
+    const teacherFields = document.getElementById('teacher-fields');
+    
+    function toggleFields() {
+        const userType = userTypeSelect.value;
+        
+        // Hide all fields first
+        studentFields.classList.remove('active');
+        teacherFields.classList.remove('active');
+        
+        // Show relevant fields
+        if (userType === 'student') {
+            studentFields.classList.add('active');
+        } else if (userType === 'teacher') {
+            teacherFields.classList.add('active');
+        }
+    }
+    
+    // Initial toggle
+    toggleFields();
+    
+    // Listen for changes
+    userTypeSelect.addEventListener('change', toggleFields);
+});
+</script>
+{% endblock %}

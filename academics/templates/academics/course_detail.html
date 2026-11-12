@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.code }} - {{ course.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-book"></i> {{ course.code }} - {{ course.name }}</h2>
+    <div>
+        {% if user.is_admin or course.instructor == user %}
+        <a href="{% url 'academics:course_update' course.id %}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        {% endif %}
+        {% if user.is_admin %}
+        <a href="{% url 'academics:course_delete' course.id %}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Delete
+        </a>
+        {% endif %}
+        <a href="{% url 'academics:course_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">Course Information</h5>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ course.description }}</p>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Instructor:</strong> {{ course.instructor.get_full_name }}</p>
+                        <p><strong>Credits:</strong> {{ course.credits }}</p>
+                        <p><strong>Semester:</strong> {{ course.get_semester_display }} {{ course.year }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Capacity:</strong> {{ course.capacity }}</p>
+                        <p><strong>Enrolled:</strong> <span class="badge bg-primary">{{ course.enrolled_count }}</span></p>
+                        <p><strong>Available Slots:</strong> 
+                            <span class="badge bg-{% if course.available_slots > 0 %}success{% else %}danger{% endif %}">
+                                {{ course.available_slots }}
+                            </span>
+                        </p>
+                        <p><strong>Status:</strong> 
+                            {% if course.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Enrolled Students ({{ enrollments.count }})</h5>
+                {% if user.is_admin or course.instructor == user %}
+                <a href="{% url 'academics:add_student_to_course' course.id %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-person-plus"></i> Add Student
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Enrollment Date</th>
+                                <th>Grade</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enrollment in enrollments %}
+                            <tr>
+                                <td>{{ enrollment.student.student_id|default:"-" }}</td>
+                                <td>{{ enrollment.student.get_full_name }}</td>
+                                <td>{{ enrollment.student.email }}</td>
+                                <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if enrollment.grade %}
+                                    <span class="badge bg-success">{{ enrollment.grade.letter_grade }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Not graded</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.is_admin or course.instructor == user %}
+                                    <a href="{% url 'academics:grade_student' enrollment.id %}" class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-pencil"></i> Grade
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">No students enrolled yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        {% if user.is_student %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">Enrollment</h5>
+            </div>
+            <div class="card-body">
+                {% if is_enrolled %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> You are enrolled in this course!
+                </div>
+                {% if user_enrollment %}
+                <a href="{% url 'academics:drop_course' user_enrollment.id %}" class="btn btn-danger w-100">
+                    <i class="bi bi-x-circle"></i> Drop Course
+                </a>
+                {% endif %}
+                {% else %}
+                    {% if course.is_full %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> This course is full.
+                    </div>
+                    {% else %}
+                    <p>You are not enrolled in this course.</p>
+                    <a href="{% url 'academics:student_enrollment' %}" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Enroll Now
+                    </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total Capacity:</span>
+                    <strong>{{ course.capacity }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Enrolled:</span>
+                    <strong>{{ course.enrolled_count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Available:</span>
+                    <strong>{{ course.available_slots }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Fill Rate:</span>
+                    <strong>{% widthratio course.enrolled_count course.capacity 100 %}%</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

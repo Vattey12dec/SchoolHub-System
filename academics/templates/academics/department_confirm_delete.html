@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Delete Department{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirm Delete</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <strong>Warning!</strong> Deleting this department will also delete all associated majors and courses.
+                </div>
+                
+                <p class="mb-4">Are you sure you want to delete:</p>
+                
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h5>{{ department.name }}</h5>
+                        <p class="mb-1"><strong>Code:</strong> {{ department.code }}</p>
+                        <p class="mb-1"><strong>Majors:</strong> {{ department.major_count }}</p>
+                        <p class="mb-0"><strong>Courses:</strong> {{ department.course_count }}</p>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="bi bi-trash"></i> Yes, Delete Department
+                        </button>
+                        <a href="{% url 'academics:department_detail' department.id %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

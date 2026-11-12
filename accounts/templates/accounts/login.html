@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - SchoolHub{% endblock %}
+
+{% block auth_content %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .login-container {
+        max-width: 1100px;
+        width: 100%;
+        margin: 20px;
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .login-left {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .login-left img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 30px;
+        filter: drop-shadow(0 10px 30px rgba(0,0,0,0.2));
+    }
+    
+    .login-right {
+        padding: 50px;
+    }
+    
+    .user-type-selector {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .user-type-btn {
+        flex: 1;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .user-type-btn:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+    }
+    
+    .user-type-btn.active {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .user-type-btn i {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        padding: 12px 45px 12px 15px;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .input-group {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .input-group i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        z-index: 10;
+    }
+    
+    .input-group .form-control {
+        padding-left: 45px;
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 15px;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        width: 100%;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .remember-me {
+        margin-bottom: 20px;
+    }
+    
+    .alert {
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card row g-0">
+        <div class="col-md-5 login-left">
+            <img src="/static/LoginBoy.jpg" alt="SchoolHub" class="img-fluid">
+            <i class="bi bi-mortarboard-fill" style="font-size: 4rem; margin-bottom: 20px;"></i>
+            <h2 class="text-center">SchoolHub</h2>
+            <p class="text-center opacity-75">Modern School Management System</p>
+        </div>
+        
+        <div class="col-md-7 login-right">
+            <h3 class="mb-4">Login to Your Account</h3>
+            
+            <div class="user-type-selector">
+                <div class="user-type-btn" data-type="student">
+                    <i class="bi bi-person-circle text-primary"></i>
+                    <div class="fw-semibold">Student</div>
+                </div>
+                <div class="user-type-btn" data-type="teacher">
+                    <i class="bi bi-person-badge text-success"></i>
+                    <div class="fw-semibold">Teacher</div>
+                </div>
+                <div class="user-type-btn" data-type="admin">
+                    <i class="bi bi-shield-check text-danger"></i>
+                    <div class="fw-semibold">Admin</div>
+                </div>
+            </div>
+            
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="input-group">
+                    <i class="bi bi-person"></i>
+                    {{ form.username }}
+                </div>
+                
+                <div class="input-group">
+                    <i class="bi bi-lock"></i>
+                    {{ form.password }}
+                </div>
+                
+                <div class="form-check remember-me">
+                    <input class="form-check-input" type="checkbox" name="remember_me" id="remember_me">
+                    <label class="form-check-label" for="remember_me">
+                        Remember me
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                </button>
+            </form>
+            
+            <div class="text-center mt-4">
+                <p class="text-muted">Don't have an account? <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold" style="color: #667eea;">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // User type selector (visual only)
+    document.querySelectorAll('.user-type-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.user-type-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+</script>
+{% endblock %}

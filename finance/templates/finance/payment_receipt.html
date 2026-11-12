@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Payment Receipt{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-receipt"></i> Payment Receipt</h2>
+    <div>
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="bi bi-printer"></i> Print
+        </button>
+        <a href="{% url 'finance:student_payments' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card" id="receipt">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <h1 class="mb-0"><i class="bi bi-mortarboard-fill text-primary"></i></h1>
+                    <h3>SchoolHub Management System</h3>
+                    <p class="text-muted">Modern School Management</p>
+                    <hr>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <h5>PAYMENT RECEIPT</h5>
+                        <p class="mb-1"><strong>Receipt #:</strong> {{ receipt.receipt_number }}</p>
+                        <p class="mb-1"><strong>Date:</strong> {{ receipt.issued_date|date:"M d, Y H:i" }}</p>
+                        <p class="mb-0"><strong>Payment ID:</strong> {{ payment.payment_id }}</p>
+                    </div>
+                    <div class="col-6 text-end">
+                        <h5>STUDENT INFORMATION</h5>
+                        <p class="mb-1"><strong>Name:</strong> {{ payment.student.get_full_name }}</p>
+                        <p class="mb-1"><strong>Student ID:</strong> {{ payment.student.student_id|default:"-" }}</p>
+                        <p class="mb-0"><strong>Email:</strong> {{ payment.student.email }}</p>
+                    </div>
+                </div>
+                
+                <div class="table-responsive mb-4">
+                    <table class="table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Description</th>
+                                <th>Payment Method</th>
+                                <th>Transaction ID</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ payment.description }}</td>
+                                <td>{{ payment.get_payment_method_display }}</td>
+                                <td>{{ payment.transaction_id|default:"-" }}</td>
+                                <td class="text-end">${{ payment.amount }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total Amount Paid:</strong></td>
+                                <td class="text-end"><strong class="text-success">${{ payment.amount }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="row">
+                    <div class="col-6">
+                        <p class="mb-1"><strong>Payment Date:</strong> {{ payment.payment_date|date:"M d, Y H:i" }}</p>
+                        <p class="mb-1"><strong>Due Date:</strong> {{ payment.due_date|date:"M d, Y" }}</p>
+                        <p class="mb-0"><strong>Status:</strong> <span class="badge bg-success">{{ payment.get_status_display }}</span></p>
+                    </div>
+                    <div class="col-6 text-end">
+                        {% if receipt.issued_by %}
+                        <p class="mb-0"><strong>Processed By:</strong> {{ receipt.issued_by.get_full_name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="small text-muted mb-0">This is a computer-generated receipt and is valid without signature.</p>
+                    <p class="small text-muted">Thank you for your payment!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, nav, .sidebar { display: none !important; }
+    #receipt { box-shadow: none !important; }
+}
+</style>
+{% endblock %}

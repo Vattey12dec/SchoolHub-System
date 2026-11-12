@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% block title %}Edit User - SchoolHub MIS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .field-group {
+        display: none;
+    }
+    .field-group.active {
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-pencil-square"></i> Edit User: {{ view_user.username }}</h2>
+        <p class="text-muted">Update user information</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">User Information</div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Username *</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">User Type *</label>
+                            {{ form.user_type }}
+                            {% if form.user_type.errors %}
+                                <div class="text-danger small">{{ form.user_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name *</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small">{{ form.first_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name *</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small">{{ form.last_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger small">{{ form.phone_number.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Date of Birth</label>
+                        {{ form.date_of_birth }}
+                        {% if form.date_of_birth.errors %}
+                            <div class="text-danger small">{{ form.date_of_birth.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                            <div class="text-danger small">{{ form.address.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Profile Picture</label>
+                        {% if view_user.profile_picture %}
+                            <div class="mb-2">
+                                <img src="{{ view_user.profile_picture.url }}" alt="Current" 
+                                     style="max-width: 150px; height: auto;" class="rounded">
+                            </div>
+                        {% endif %}
+                        {{ form.profile_picture }}
+                        {% if form.profile_picture.errors %}
+                            <div class="text-danger small">{{ form.profile_picture.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Account Status -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active Account
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_approved }}
+                                <label class="form-check-label" for="{{ form.is_approved.id_for_label }}">
+                                    Approved
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Student-specific fields -->
+                    <div id="student-fields" class="field-group">
+                        <hr>
+                        <h5 class="mb-3"><i class="bi bi-mortarboard"></i> Student Information</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Student ID</label>
+                            {{ form.student_id }}
+                            {% if form.student_id.errors %}
+                                <div class="text-danger small">{{ form.student_id.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            {{ form.department }}
+                            {% if form.department.errors %}
+                                <div class="text-danger small">{{ form.department.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Major</label>
+                            {{ form.major }}
+                            {% if form.major.errors %}
+                                <div class="text-danger small">{{ form.major.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Enrollment Date</label>
+                            {{ form.enrollment_date }}
+                            {% if form.enrollment_date.errors %}
+                                <div class="text-danger small">{{ form.enrollment_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Teacher-specific fields -->
+                    <div id="teacher-fields" class="field-group">
+                        <hr>
+                        <h5 class="mb-3"><i class="bi bi-person-badge"></i> Teacher Information</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Teacher ID</label>
+                            {{ form.teacher_id }}
+                            {% if form.teacher_id.errors %}
+                                <div class="text-danger small">{{ form.teacher_id.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            {{ form.teacher_department }}
+                            {% if form.teacher_department.errors %}
+                                <div class="text-danger small">{{ form.teacher_department.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Teaching Majors</label>
+                            {{ form.teaching_majors }}
+                            <small class="text-muted d-block">Select majors this teacher can teach</small>
+                            {% if form.teaching_majors.errors %}
+                                <div class="text-danger small">{{ form.teaching_majors.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Hire Date</label>
+                            {{ form.hire_date }}
+                            {% if form.hire_date.errors %}
+                                <div class="text-danger small">{{ form.hire_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Update User
+                        </button>
+                        <a href="{% url 'accounts:user_detail' view_user.id %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-info-circle"></i> Current Status</div>
+            <div class="card-body">
+                <p><strong>User Type:</strong> 
+                    <span class="badge bg-primary">{{ view_user.get_user_type_display }}</span>
+                </p>
+                <p><strong>Status:</strong> 
+                    {% if view_user.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </p>
+                <p><strong>Approved:</strong> 
+                    {% if view_user.is_approved %}
+                        <span class="badge bg-success">Yes</span>
+                    {% else %}
+                        <span class="badge bg-warning">No</span>
+                    {% endif %}
+                </p>
+                <p><strong>Joined:</strong> {{ view_user.date_joined|date:"M d, Y" }}</p>
+                
+                {% if view_user.is_student and view_user.student_id %}
+                    <p><strong>Student ID:</strong> {{ view_user.student_id }}</p>
+                {% elif view_user.is_teacher and view_user.teacher_id %}
+                    <p><strong>Teacher ID:</strong> {{ view_user.teacher_id }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle"></i> Danger Zone
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">Permanently delete this user and all associated data.</p>
+                <a href="{% url 'accounts:delete_user' view_user.id %}" class="btn btn-danger btn-sm w-100">
+                    <i class="bi bi-trash"></i> Delete User
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userTypeSelect = document.getElementById('id_user_type');
+    const studentFields = document.getElementById('student-fields');
+    const teacherFields = document.getElementById('teacher-fields');
+    
+    function toggleFields() {
+        const userType = userTypeSelect.value;
+        
+        // Hide all fields first
+        studentFields.classList.remove('active');
+        teacherFields.classList.remove('active');
+        
+        // Show relevant fields
+        if (userType === 'student') {
+            studentFields.classList.add('active');
+        } else if (userType === 'teacher') {
+            teacherFields.classList.add('active');
+        }
+    }
+    
+    // Initial toggle
+    toggleFields();
+    
+    // Listen for changes
+    userTypeSelect.addEventListener('change', toggleFields);
+});
+</script>
+{% endblock %}

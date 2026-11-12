@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Create Bulk Payments{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cash-stack"></i> Create Bulk Payments</h2>
+    <a href="{% url 'finance:finance_dashboard' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Create payment records for multiple students at once. Select students, choose a fee structure, and set a due date.
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label class="form-label"><strong>Select Fee Structure *</strong></label>
+                {{ form.fee_structure }}
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label"><strong>Due Date *</strong></label>
+                {{ form.due_date }}
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label"><strong>Description (Optional)</strong></label>
+                {{ form.description }}
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label"><strong>Select Students *</strong></label>
+                <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                    {{ form.students }}
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-circle"></i> Create Bulk Payments
+                </button>
+                <a href="{% url 'finance:finance_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Drop Course{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-warning">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirm Drop Course</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <strong>Warning!</strong> You are about to drop this course.
+                </div>
+                
+                <p class="mb-4">Are you sure you want to drop the following course?</p>
+                
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h5>{{ enrollment.course.code }} - {{ enrollment.course.name }}</h5>
+                        <p class="mb-1"><strong>Instructor:</strong> {{ enrollment.course.instructor.get_full_name }}</p>
+                        <p class="mb-1"><strong>Credits:</strong> {{ enrollment.course.credits }}</p>
+                        <p class="mb-0"><strong>Enrolled Since:</strong> {{ enrollment.enrollment_date|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="bi bi-x-circle"></i> Yes, Drop Course
+                        </button>
+                        <a href="{% url 'academics:student_enrollment' %}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

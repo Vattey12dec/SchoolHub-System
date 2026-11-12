@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Add Courses to {{ major.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-plus-circle"></i> Add Courses to Major</h2>
+            <p class="text-muted">{{ major.name }} - {{ major.department.name }}</p>
+        </div>
+        <a href="{% url 'academics:major_detail' major.id %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    {% if form.courses.field.queryset %}
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            Select existing courses from the <strong>{{ major.department.name }}</strong> department to add to this major.
+                        </div>
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Please correct the following errors:</strong>
+                            <ul class="mb-0 mt-2">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-4">
+                            <h5>Available Courses</h5>
+                            <p class="text-muted">Check the courses you want to add to {{ major.name }}</p>
+                        </div>
+
+                        <div class="list-group mb-4">
+                            {% for course in form.courses.field.queryset %}
+                            <label class="list-group-item">
+                                <div class="d-flex align-items-start">
+                                    <div class="form-check me-3 mt-1">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="courses" value="{{ course.id }}" 
+                                               id="course_{{ course.id }}">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">{{ course.code }} - {{ course.name }}</h6>
+                                                <p class="mb-1 small text-muted">{{ course.description|truncatewords:20 }}</p>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-primary">{{ course.credits }} Credits</span>
+                                                    <span class="badge 
+                                                        {% if course.semester == 'spring' %}bg-info
+                                                        {% elif course.semester == 'fall' %}bg-warning
+                                                        {% else %}bg-success{% endif %}">
+                                                        {{ course.get_semester_display }} {{ course.year }}
+                                                    </span>
+                                                    <span class="badge bg-secondary">
+                                                        {{ course.enrolled_count }}/{{ course.capacity }} enrolled
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% if course.instructor %}
+                                        <p class="mb-0 mt-2 small">
+                                            <i class="bi bi-person"></i> {{ course.instructor.get_full_name }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Add Selected Courses
+                            </button>
+                            <a href="{% url 'academics:major_detail' major.id %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3">No Available Courses</h4>
+                        <p class="text-muted">
+                            All courses from the {{ major.department.name }} department have already been added to this major,
+                            or there are no courses in this department yet.
+                        </p>
+                        <div class="mt-4">
+                            <a href="{% url 'academics:course_create' %}" class="btn btn-primary me-2">
+                                <i class="bi bi-plus-circle"></i> Create New Course
+                            </a>
+                            <a href="{% url 'academics:major_detail' major.id %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Major
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">About Adding Courses</h5>
+                    <ul class="small mb-0">
+                        <li>Only courses from the same department can be added</li>
+                        <li>You can add multiple courses at once</li>
+                        <li>Courses already in this major are not shown</li>
+                        <li>Students enrolled in this major will be able to see and enroll in these courses</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Major Info</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Name:</strong> {{ major.name }}</p>
+                    <p class="mb-2"><strong>Code:</strong> {{ major.code }}</p>
+                    <p class="mb-2"><strong>Department:</strong> {{ major.department.name }}</p>
+                    <p class="mb-0"><strong>Current Courses:</strong> {{ major.course_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

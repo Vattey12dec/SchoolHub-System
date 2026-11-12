@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Pending Payment Approvals{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-hourglass-split"></i> Pending Payment Approvals</h2>
+            <p class="text-muted">Review and approve student payments</p>
+        </div>
+        <a href="{% url 'finance:payment_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to All Payments
+        </a>
+    </div>
+
+    {% if pending_payments %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> 
+        <strong>{{ total_pending }}</strong> payment(s) waiting for approval
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Payment ID</th>
+                            <th>Student</th>
+                            <th>Student ID</th>
+                            <th>Fee Type</th>
+                            <th>Amount</th>
+                            <th>Payment Date</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in pending_payments %}
+                        <tr>
+                            <td><strong>#{{ payment.id }}</strong></td>
+                            <td>{{ payment.student.get_full_name }}</td>
+                            <td>{{ payment.student.student_id }}</td>
+                            <td>{{ payment.fee_structure.name }}</td>
+                            <td>${{ payment.amount }}</td>
+                            <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if payment.payment_method == 'cash' %}bg-success
+                                    {% elif payment.payment_method == 'bank_transfer' %}bg-primary
+                                    {% elif payment.payment_method == 'credit_card' %}bg-info
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ payment.get_payment_method_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-clock"></i> Pending
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'finance:payment_detail' payment.id %}" 
+                                   class="btn btn-sm btn-primary">
+                                    <i class="bi bi-eye"></i> Review
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Total Pending</h5>
+                    <h2 class="text-warning">{{ total_pending }}</h2>
+                    <p class="text-muted mb-0">Payments awaiting approval</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body">
+                    <h5 class="card-title">Total Amount</h5>
+                    <h2 class="text-info">
+                        ${% widthratio pending_payments|length 1 1 as total %}
+                        {{ pending_payments|length }}
+                    </h2>
+                    <p class="text-muted mb-0">Pending payment total</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> No pending payment approvals at this time!
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

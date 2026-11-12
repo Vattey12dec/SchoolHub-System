@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Dashboard</h2>
+        <p class="text-muted">Welcome back, {{ user.first_name }}! </p>
+    </div>
+</div>
+
+{% if user.is_admin %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-card-blue">
+            <h2 class="mt-3">{{ total_students }}</h2>
+            <p class="mb-0">Total Students</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-green">
+            <h2 class="mt-3">{{ total_teachers }}</h2>
+            <p class="mb-0">Total Teachers</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-orange">
+            <h2 class="mt-3">{{ total_courses }}</h2>
+            <p class="mb-0">Total Courses</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-purple">
+            <h2 class="mt-3">${{ total_revenue }}</h2>
+            <p class="mb-0">Total Revenue</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">Quick Actions</div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'academics:course_create' %}" class="btn btn-outline-primary btn-lg">
+                        Create New Course
+                    </a>
+                    <a href="{% url 'finance:fee_structure_create' %}" class="btn btn-outline-success btn-lg">
+                        Create Fee Structure
+                    </a>
+                    <a href="{% url 'finance:create_bulk_payments' %}" class="btn btn-outline-warning btn-lg">
+                        Create Bulk Payments
+                    </a>
+                    <a href="{% url 'accounts:pending_approvals' %}" class="btn btn-outline-danger btn-lg">
+                        Pending Approvals {% if pending_approvals %}<span class="badge bg-danger">{{ pending_approvals }}</span>{% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">System Stats</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Pending Payments</span>
+                    <span class="badge bg-warning">{{ pending_payments }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Total Revenue</span>
+                    <span class="badge bg-success">${{ total_revenue }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Active Courses</span>
+                    <span class="badge bg-info">{{ active_courses }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if user.is_teacher %}
+<div class="card">
+    <div class="card-header">My Courses</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Name</th>
+                        <th>Enrolled Students</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in my_courses %}
+                    <tr>
+                        <td>{{ course.code }}</td>
+                        <td>{{ course.name }}</td>
+                        <!-- FIXED: Use enrollment_count (annotation) instead of enrolled_count (property) -->
+                        <td><span class="badge bg-primary">{{ course.enrollment_count|default:0 }}</span></td>
+                        <td>
+                            <a href="{% url 'academics:course_detail' course.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if user.is_student %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">My Enrollments</div>
+            <div class="card-body">
+                {% for enrollment in enrolled_courses %}
+                <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
+                    <div>
+                        <h6 class="mb-1">{{ enrollment.course.code }}</h6>
+                        <small class="text-muted">{{ enrollment.course.name }}</small>
+                    </div>
+                    <a href="{% url 'academics:course_detail' enrollment.course.id %}" class="btn btn-sm btn-primary">View</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Payment Summary</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Paid:</span>
+                        <span class="badge bg-success">${{ total_paid }}</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Pending Payments:</span>
+                        <span class="badge bg-warning">{{ pending_payments }}</span>
+                    </div>
+                </div>
+                <a href="{% url 'finance:student_payments' %}" class="btn btn-primary w-100">View All Payments</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
